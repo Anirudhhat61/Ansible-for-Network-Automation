@@ -1,0 +1,25 @@
+---
+
+- name: task on takig backup
+  hosts: automation-switches
+  gather_facts: true
+  connection: local
+  
+  vars:
+    cli:
+       authorize: yes
+       auth_pass: cisco
+
+  tasks:
+  - name: taking running-config    
+    ios_command:
+      provider: "{{ cli }}"
+      commands:
+        - show ip int br
+        - show run
+    register: output
+
+  - name: save output to customize folder
+    copy:
+      content: "{{output.stdout[0]}} \n {{output.stdout[1]}}"
+      dest: "/etc/ansible/backups/show_run_{{inventory_hostname}}_{{ansible_date_time.date}}.txt"
